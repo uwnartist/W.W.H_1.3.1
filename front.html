@@ -1,1 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 독서감상문 작성기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-title {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .result-content {
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+            font-size: 1.05em;
+        }
+
+        .book-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8eaf6;
+            border-radius: 8px;
+        }
+
+        .book-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .book-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .error-message {
+            display: none;
+            padding: 15px;
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            color: #c33;
+            margin-top: 20px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #1565c0;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 AI 독서감상문 작성기</h1>
+        
+        <div class="info-box">
+            <p>💡 책 정보를 입력하면 AI가 자동으로 책 내용을 검색하여 독서감상문을 작성합니다.</p>
+        </div>
+
+        <form id="bookForm">
+            <div class="form-group">
+                <label for="bookTitle">도서명 *</label>
+                <input type="text" id="bookTitle" name="bookTitle" placeholder="예: 어린왕자" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">저자 *</label>
+                <input type="text" id="author" name="author" placeholder="예: 생텍쥐페리" required>
+            </div>
+
+            <div class="form-group">
+                <label for="publisher">출판사 *</label>
+                <input type="text" id="publisher" name="publisher" placeholder="예: 민음사" required>
+            </div>
+
+            <div class="form-group">
+                <label for="year">출판 연도 *</label>
+                <input type="number" id="year" name="year" placeholder="예: 2015" min="1900" max="2026" required>
+            </div>
+
+            <button type="submit" class="submit-btn">독서감상문 생성하기</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loadingText">책 정보를 검색하고 있습니다...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="book-info" id="bookInfo"></div>
+            <h2 class="result-title">✨ 생성된 독서감상문</h2>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI 초기화
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultContainer').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.querySelector('.submit-btn').disabled = true;
+            document.getElementById('loadingText').textContent = '책 정보를 검색하고 있습니다...';
+
+            // 폼 데이터 수집
+            const formData = {
+                bookTitle: document.getElementById('bookTitle').value,
+                author: document.getElementById('author').value,
+                publisher: document.getElementById('publisher').value,
+                year: parseInt(document.getElementById('year').value)
+            };
+
+            try {
+                // Flask 서버로 POST 요청
+                const response = await fetch('http://localhost:5000/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 책 정보 표시
+                    const bookInfoHtml = `
+                        <h3>📖 책 정보</h3>
+                        <p><strong>도서명:</strong> ${formData.bookTitle}</p>
+                        <p><strong>저자:</strong> ${formData.author}</p>
+                        <p><strong>출판사:</strong> ${formData.publisher}</p>
+                        <p><strong>출판 연도:</strong> ${formData.year}년</p>
+                    `;
+                    document.getElementById('bookInfo').innerHTML = bookInfoHtml;
+                    
+                    // 독서감상문 표시
+                    document.getElementById('resultContent').textContent = data.result;
+                    document.getElementById('resultContainer').classList.add('show');
+                } else {
+                    // 에러 메시지 표시
+                    document.getElementById('errorMessage').textContent = data.error || '오류가 발생했습니다.';
+                    document.getElementById('errorMessage').classList.add('show');
+                }
+            } catch (error) {
+                // 네트워크 에러 처리
+                document.getElementById('errorMessage').textContent = '서버와 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.';
+                document.getElementById('errorMessage').classList.add('show');
+            } finally {
+                // 로딩 상태 해제
+                document.getElementById('loading').classList.remove('show');
+                document.querySelector('.submit-btn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
