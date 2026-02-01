@@ -17,7 +17,7 @@ CORS(app)  # CORS 활성화
 
 # 환경 변수에서 API 키를 가져오거나, 직접 입력하세요
 
-GEMINI_API_KEY = os.environ.get("AIzaSyBDhtGTI6BPqSpbNdGDbFVzVzDvn3H4RU8")  # 또는 직접 API 키 입력
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")  # 또는 직접 API 키 입력
 genai.configure(api_key=GEMINI_API_KEY)
 
 def scrape_book_info(book_title, author, publisher, year):
